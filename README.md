@@ -1,11 +1,11 @@
-# Uploading temperature sensor data in Thing Speak cloud
+# Uploading Temperature sensor data in Thing Speak cloud
 
 # AIM:
-To monitor the temperature sensor data in the Thing speak using an ESP32 controller.
+To monitor the distance of the obstacle using an Ultrasonic sensor and uploading the data in the Thing speak using an ESP32 controller.
 
 # Apparatus required:
 ESP32 Controller  </br>
-Temperature Sensor </br>
+HC-SR04 Ultrasonic sensor module </br>
 Power supply </br>
 Connecting wires </br>
 Bread board </br>
@@ -25,16 +25,6 @@ Step10: Check the jumper position and connect 4 & 5 of P4.  </br>
 Step11. Upload the program in the esp32. </br>
 Step12 Press the boot button in ESP32 and then press and release the reset button after release the boot button </br>
 Step13 Check the output in the cloud </br>
-
-## Thingspeak
-
-Step1 Create a ThingSpeak Account </br>
-Step2 Log in to your ThingSpeak account </br>
-Step3 Create a new channel by navigating to "Channels" and clicking on "New Channel." </br>
-Step4 Configure your channel settings, such as Field labels and Channel name </br>
-Step5 Copy the Channel ID and API key in the thingspeak and update in the program </br>
-Step6 Execute your program to send the sensor value to ThingSpeak </br>
-Step7 Check your ThingSpeak channel to verify that the sensor value has been updated </br>
 
 # THEORY:
 
@@ -71,12 +61,64 @@ Automatically act on your data and communicate using third-party services like T
 
 
 # PROGRAM:
+```
+#include <WiFi.h>
+#include <WiFiClient.h>;
+#include <ThingSpeak.h>;
+
+const char* ssid = "Surendhar"; //Your Network SSID
+const char* password = "123456789"; //Your Network Password
+
+#include <DHT.h>
+#define DHT11PIN 23
+#define DHTTYPE DHT11
+
+DHT dht(DHT11PIN, DHTTYPE);
+float h,tc ;
+WiFiClient client;
+unsigned long myChannelNumber = 1870717; //Your Channel Number (Without Brackets)
+//unsigned long myChannelField = 1870717; // Channel ID
+//const int ChannelField = 1; // Which channel to write data
+const char * myWriteAPIKey = "IXWWM4G5GCKTTQ4Q"; // Your write API Key
+
+void setup()
+{
+Serial.begin(115200);
+delay(10);
+// Connect to WiFi network
+WiFi.begin(ssid, password);
+ThingSpeak.begin(client);
+dht.begin();
+  delay(1000);
+  Serial.println("DHT11 Temperature and Humidity ");
+}
+
+void loop()
+{
+h = dht.readHumidity();
+tc = dht.readTemperature();
+ 
+  Serial.print('\n');
+  Serial.print("Humidity = ");
+  Serial.print(h);
+  Serial.print("%,  ");
+  Serial.print("Temperature = ");
+  Serial.print(tc);
+  Serial.print("°C, ");
+ 
+ThingSpeak.writeField(myChannelNumber, 1,h, myWriteAPIKey); //Update in ThingSpeak
+ThingSpeak.writeField(myChannelNumber, 2,tc, myWriteAPIKey); //Update in ThingSpeak
+delay(100);
+}
+```
 
 # CIRCUIT DIAGRAM:
+![IMG-20241115-WA0004 1](https://github.com/user-attachments/assets/528eff57-113c-4ad2-8a0b-f323a554c20c)
+
 
 # OUTPUT:
+![IMG-20241115-WA0005 1](https://github.com/user-attachments/assets/33d5a945-002c-4bbc-93ec-6bfe05631bd1)
+
 
 # RESULT:
-
-Thus the temperature sensor values are updated in the Thing speak using ESP32 controller.
-
+Thus the distance of the obstacle was monitored using Ultrasonic sensor and the distance values are uploaded in the Thing speak using ESP32 controller.
